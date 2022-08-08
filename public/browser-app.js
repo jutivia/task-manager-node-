@@ -7,18 +7,18 @@ const formAlertDOM = document.querySelector('.form-alert')
 const showTasks = async () => {
   loadingDOM.style.visibility = 'visible'
   try {
-    const {
-      data: { tasks },
-    } = await axios.get('/api/v1/tasks')
+    const data = await axios.get('/api/v1/tasks')
+    const tasks = data.data.data
     if (tasks.length < 1) {
       tasksDOM.innerHTML = '<h5 class="empty-list">No tasks in your list</h5>'
       loadingDOM.style.visibility = 'hidden'
       return
     }
+    console.log(tasks)
     const allTasks = tasks
       .map((task) => {
-        const { completed, _id: taskID, name } = task
-        return `<div class="single-task ${completed && 'task-completed'}">
+        const { completed, _id: taskID, name } = task;
+        return `<div class="single-task ${completed && "task-completed"}">
 <h5><span><i class="far fa-check-circle"></i></span>${name}</h5>
 <div class="task-links">
 
@@ -33,9 +33,9 @@ const showTasks = async () => {
 <i class="fas fa-trash"></i>
 </button>
 </div>
-</div>`
+</div>`;
       })
-      .join('')
+      .join("");
     tasksDOM.innerHTML = allTasks
   } catch (error) {
     tasksDOM.innerHTML =

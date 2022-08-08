@@ -1,16 +1,6 @@
-const mongoose= require('mongoose');
+const mongoose = require('mongoose')
 
-
-
-
-const connectDb=(url)=>{
- return mongoose
-.connect(url, {
-useNewUrlParser:true,
-useCreateIndex:true,
-useFindAndModify:false,
-useUnifiedTopology:true,
-})
+const connectDb = async (url) => {
+    return await mongoose.connect(url).then(() => console.log(`Connected to db`))
 }
-
-module.exports=connectDb;
+module.exports = connectDb

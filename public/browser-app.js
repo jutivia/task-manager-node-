@@ -7,14 +7,13 @@ const formAlertDOM = document.querySelector('.form-alert')
 const showTasks = async () => {
   loadingDOM.style.visibility = 'visible'
   try {
-    const data = await axios.get('/api/v1/tasks')
-    const tasks = data.data.data
+    const { data: { data:tasks }} = await axios.get('/api/v1/tasks')
     if (tasks.length < 1) {
-      tasksDOM.innerHTML = '<h5 class="empty-list">No tasks in your list</h5>'
-      loadingDOM.style.visibility = 'hidden'
-      return
+      tasksDOM.innerHTML = '<h5 class="empty-list">No tasks in your list</h5>';
+      loadingDOM.style.visibility = "hidden";
+      return;
     }
-    console.log(tasks)
+    // console.log(tasks)
     const allTasks = tasks
       .map((task) => {
         const { completed, _id: taskID, name } = task;
@@ -78,7 +77,7 @@ formDOM.addEventListener('submit', async (e) => {
     formAlertDOM.classList.add('text-success')
   } catch (error) {
     formAlertDOM.style.display = 'block'
-    formAlertDOM.innerHTML = `error, please try again`
+    formAlertDOM.innerHTML = `${error.response.data.message}`;
   }
   setTimeout(() => {
     formAlertDOM.style.display = 'none'

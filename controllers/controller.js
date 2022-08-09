@@ -1,66 +1,47 @@
 const Task = require('../models/task')
+const asyncWrapper = require("../middleware/async");
+const {createCustomError} = require('../errors/custom-error')
 
-const getAllTasks = async(req, res) => { 
-    const tasks = await Task.find({}).catch((err) => {
-      return res
-        .status(500)
-        .json({ success: false, message: err.errors.name.message });
-    });
+const getAllTasks = asyncWrapper(async(req, res) => { 
+    const tasks = await Task.find({})
     return res.status(200).json({ success: true, data: tasks })
-}
+})
 
-const createTask = async (req, res) => {``
+const createTask = asyncWrapper (async (req, res) => {
+    const { name } = req.body
+    if (!name) return res.status(400).json({ success: false, message: "Name cannot be empty" })
    const task = await Task.create(req.body)
-       .catch((err) => {
-           return res.status(500).json({ success: false, message: err.errors.name.message })
-       })
      return res.status(201).json({success: true, data: task });
     
-}
+})
 
-const getSingleTask = async (req, res) => {
+const getSingleTask = asyncWrapper(async (req, res, next) => {
     const {id:taskId} = req.params
-   const task = await Task.findOne({ _id: taskId }).catch((err) => {
-     return res.status(500).json({ success: false, message: err.message });
-   });
+  const task = await Task.findOne({ _id: taskId })
+  
    task
      ? res.status(200).json({ success: true, data: task })
-     : res
-         .status(404)
-         .json({ success: false, message: `No task with Id: '${taskId}' found` });
-};
+     : next(createCustomError(`No task with Id: '${taskId}' found`, 404));
+});
 
-const updateTask = async (req, res) => {
+const updateTask = asyncWrapper(async (req, res) => {
     const { id: taskId } = req.params;
     const task = await Task.findOneAndUpdate({ _id: taskId }, req.body, {
         new: true,
         runValidators: true
-    }).catch(
-      (err) => {
-        return res.status(500).json({ success: false, message: err.message });
-      }
-    );
+    })
     task
       ? res.status(200).json({ success: true, data: task })
-      : res
-          .status(404)
-          .json({
-            success: false,
-            message: `No task with Id: '${taskId}' found`,
-          });
-}
+      : next(createCustomError(`No task with Id: '${taskId}' found`, 404));
+})
 
-const deleteTask = async (req, res) => {
+const deleteTask = asyncWrapper(async (req, res) => {
    const { id: taskId } = req.params
-    const task = await Task.findOneAndDelete({ _id: taskId }).catch((err) => {
-     return res.status(500).json({ success: false, message: err.message });
-   });
+    const task = await Task.findOneAndDelete({ _id: taskId })
    task
      ? res.status(200).json({ success: true, message: task })
-     : res
-         .status(404)
-         .json({ success: false, message: `No task with Id: '${taskId}' found` });
-};
+     : next(createCustomError(`No task with Id: '${taskId}' found`, 404));
+});
 
 
 module.exports = {
